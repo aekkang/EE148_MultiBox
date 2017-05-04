@@ -34,7 +34,7 @@ INCEPTIONV3_SIZE = 299
 # Model training parameters
 OPTIMIZER = "rmsprop"
 BATCH_SIZE = 128
-EPOCHS = 8
+EPOCHS = 32
 VERBOSE = 1
 SAVE = 1
 
@@ -99,13 +99,13 @@ def show_box(image, box):
 
     show_image(image, show=False)
     
+    # Overlay box.
+    box = expand_box(box)
     if box[0] > box[2] or box[1] > box[3]:
         return
 
-    # Overlay box.
-    box = expand_box(box)
-    rect = patches.Rectangle((box[0], box[3]), box[2] - box[0], box[3] - box[1],
-                             linewidth=1, edgecolor='r', facecolor='none')
+    # Add box.
+    rect = patches.Rectangle((box[0], box[3]), box[2] - box[0], box[3] - box[1], linewidth=1, edgecolor='r', facecolor='none')
     plt.gca().add_patch(rect)
 
     plt.show()

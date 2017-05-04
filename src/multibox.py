@@ -73,11 +73,11 @@ model.summary()
 model.compile(loss=F, optimizer=OPTIMIZER)
 
 # Fit the model; save the training history and the best model.
-# if SAVE:
-#     checkpointer = ModelCheckpoint(filepath=RESULTS_DIR + "intermediate_model.hdf5", verbose=VERBOSE, save_best_only=True)
-#     hist = model.fit(X_train, Y_train, batch_size=BATCH_SIZE, epochs=EPOCHS, verbose=VERBOSE, callbacks=[checkpointer])
-# else:
-hist = model.fit(X_train, Y_train, batch_size=BATCH_SIZE, epochs=EPOCHS, verbose=VERBOSE)
+if SAVE:
+    checkpointer = ModelCheckpoint(filepath=RESULTS_DIR + "intermediate_model.hdf5", verbose=VERBOSE, save_best_only=True)
+    hist = model.fit(X_train, Y_train, batch_size=BATCH_SIZE, epochs=EPOCHS, verbose=VERBOSE, validation_data=(X_test, Y_test), callbacks=[checkpointer])
+else:
+    hist = model.fit(X_train, Y_train, batch_size=BATCH_SIZE, epochs=EPOCHS, verbose=VERBOSE)
 
 model.save(RESULTS_DIR + "final_model.hdf5")
 np.save(RESULTS_DIR + "image_classification_results", hist.history)
