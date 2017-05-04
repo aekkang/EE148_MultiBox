@@ -52,8 +52,8 @@ base_output = base_model.output
 # Add new layers in place of the last layer in the original model.
 global1 = GlobalAveragePooling2D()(base_output)
 global1 = Reshape((1, 1, 2048))(global1)
-loc1 = Dense(4, activation='relu')(global1)
-conf1 = Dense(1, activation='relu')(global1)
+loc1 = Dense(4, activation='sigmoid')(global1)
+conf1 = Dense(1, activation='sigmoid')(global1)
 output1 = Concatenate(axis=3)([loc1, conf1])
 
 # Create the final model.
@@ -70,14 +70,14 @@ for layer in base_model.layers:
 
 # Print summary and compile.
 model.summary()
-model.compile(loss=F, optimizer=OPTIMIZER, metrics=['accuracy'])
+model.compile(loss=F, optimizer=OPTIMIZER)
 
 # Fit the model; save the training history and the best model.
 if SAVE:
     checkpointer = ModelCheckpoint(filepath=RESULTS_DIR + "intermediate_model.hdf5", verbose=VERBOSE, save_best_only=True)
-    hist = model.fit(X_train, Y_train, batch_size=BATCH_SIZE, epochs=EPOCHS, validation_data=(X_test, Y_test), verbose=VERBOSE, callbacks=[checkpointer])
+    hist = model.fit(X_train, Y_train, batch_size=BATCH_SIZE, epochs=EPOCHS, verbose=VERBOSE, callbacks=[checkpointer])
 else:
-    hist = model.fit(X_train, Y_train, batch_size=BATCH_SIZE, epochs=EPOCHS, validation_data=(X_test, Y_test), verbose=VERBOSE)
+    hist = model.fit(X_train, Y_train, batch_size=BATCH_SIZE, epochs=EPOCHS, verbose=VERBOSE)
 
 model.save(RESULTS_DIR + "final_model.hdf5")
 np.save(RESULTS_DIR + "image_classification_results", hist.history)

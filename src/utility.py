@@ -34,7 +34,7 @@ INCEPTIONV3_SIZE = 299
 # Model training parameters
 OPTIMIZER = "rmsprop"
 BATCH_SIZE = 32
-EPOCHS = 2
+EPOCHS = 1
 VERBOSE = 1
 SAVE = 1
 
