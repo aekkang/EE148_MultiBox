@@ -60,6 +60,17 @@ def transform(Y):
     Y[:, :, :, 2:4] -= 1
     return Y
 
+def expand_box(box):
+    """
+    Transform the given bounding box to 
+    """
+
+    box = [int(round(elem * INCEPTIONV3_SIZE)) for elem in box]
+    box[2] = 1 + box[2]
+    box[3] = 1 + box[3]
+
+    return box
+
 
 ##############################
 # IMAGE FUNCTIONS
@@ -112,15 +123,3 @@ def visualize_cmatrix(model, X_test, Y_test, filename):
     # Save figure.
     # plt.savefig(VISUALIZATION_DIR + filename)
     return cmatrix
-
-
-##############################
-# MISCELLANEOUS FUNCTIONS
-##############################
-
-def expand_box(box):
-    """
-    Return a box that can overlay an image.
-    """
-
-    return [int(round(elem * INCEPTIONV3_SIZE)) for elem in box]
