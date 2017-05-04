@@ -108,5 +108,5 @@ def resize_to_square(image):
 
 
 if __name__ == "__main__":
-    save_data()
+    # save_data()
     (X_train, Y_train), (X_test, Y_test) = load_data()

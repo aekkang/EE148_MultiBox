@@ -8,6 +8,7 @@
 
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.patches as patches
 from sklearn.metrics import confusion_matrix
 
 # Suppress compiler warnings.
@@ -33,7 +34,7 @@ INCEPTIONV3_SIZE = 299
 # Model training parameters
 OPTIMIZER = "rmsprop"
 BATCH_SIZE = 32
-EPOCHS = 10
+EPOCHS = 2
 VERBOSE = 1
 SAVE = 1
 
@@ -44,24 +45,50 @@ SAVE = 1
 def F_loc(l, g):
     return tf.squared_difference(l, g) / 2
 
-def F_conf(_, c):
+def F_conf(c):
     return - tf.log(c)
 
-def F(l, g, c):
-    return F_conf(c) + F_loc(l, g)
+def F(y_true, y_pred):
+    return F_conf(y_pred[:, :, :, 4]) + F_loc(y_true[:, :, :, :4], y_pred[:, :, :, :4])
+
+
+##############################
+# PRIOR FUNCTIONS - 1x1
+##############################
+
+def transform(Y):
+    Y[:, :, :, 2:4] -= 1
+    return Y
 
 
 ##############################
 # IMAGE FUNCTIONS
 ##############################
 
-def show_image(image):
+def show_image(image, show=True):
     """
     Show given image.
     """
 
-    plt.xticks([]), plt.yticks([])
-    plt.imshow(image, cmap=plt.get_cmap('gray'))
+    # plt.xticks([]), plt.yticks([])
+    plt.imshow(image) #, cmap=plt.get_cmap('gray'))
+
+    if show:
+        plt.show()
+
+def show_box(image, box):
+    """
+    Show given image with the given overlaying bounding box.
+    """
+
+    show_image(image, show=False)
+    
+    # Overlay box.
+    box = expand_box(box)
+    rect = patches.Rectangle((box[0], box[1]), box[2] - box[0], box[3] - box[1],
+                             linewidth=1, edgecolor='r', facecolor='none')
+    plt.gca().add_patch(rect)
+
     plt.show()
 
 
@@ -85,3 +112,15 @@ def visualize_cmatrix(model, X_test, Y_test, filename):
     # Save figure.
     # plt.savefig(VISUALIZATION_DIR + filename)
     return cmatrix
+
+
+##############################
+# MISCELLANEOUS FUNCTIONS
+##############################
+
+def expand_box(box):
+    """
+    Return a box that can overlay an image.
+    """
+
+    return [int(round(elem * INCEPTIONV3_SIZE)) for elem in box]
