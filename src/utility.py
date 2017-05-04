@@ -9,7 +9,10 @@
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.patches as patches
+
 from sklearn.metrics import confusion_matrix
+from keras.models import load_model
+from keras.utils.generic_utils import get_custom_objects
 
 # Suppress compiler warnings.
 import os
@@ -33,7 +36,7 @@ INCEPTIONV3_SIZE = 299
 
 # Model training parameters
 OPTIMIZER = "rmsprop"
-BATCH_SIZE = 128
+BATCH_SIZE = 32
 EPOCHS = 32
 VERBOSE = 1
 SAVE = 1
@@ -131,3 +134,18 @@ def visualize_cmatrix(model, X_test, Y_test, filename):
     # Save figure.
     # plt.savefig(VISUALIZATION_DIR + filename)
     return cmatrix
+
+
+##############################
+# MISCELLANEOUS FUNCTIONS
+##############################
+
+def load_custom_model(filename):
+    """
+    Load a model with a custom loss function.
+    """
+
+    get_custom_objects().update({"F": F})
+    model = load_model(RESULTS_DIR + filename)
+
+    return model
