@@ -40,12 +40,13 @@ model = Model(inputs=base_model.input, outputs=[loc1, conf1])
 
 
 ##############################
-# TRAINING
+# DATA PREPROCESSING
 ##############################
 
 # Load the dataset.
 (X_train, Y_train), (X_test, Y_test) = load_data()
 
+# Reshape the dataset to the desired format.
 loc_train = Y_train.reshape(Y_train.shape[0], 1, 1, 4)
 conf_train = np.ones((Y_train.shape[0], 1, 1, 1))
 Y_train = [loc_train, conf_train]
@@ -53,6 +54,11 @@ Y_train = [loc_train, conf_train]
 loc_test = Y_test.reshape(Y_test.shape[0], 1, 1, 4)
 conf_test = np.ones((Y_test.shape[0], 1, 1, 1))
 Y_test = [loc_test, conf_test]
+
+
+##############################
+# TRAINING
+##############################
 
 # Freeze original InceptionV3 layers during training.
 for layer in base_model.layers:
