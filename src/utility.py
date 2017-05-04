@@ -70,14 +70,15 @@ def transform(Y):
 
 def expand_box(box):
     """
-    Transform the given bounding box to 
+    Transform the given bounding box to one with feasible coordinates.
     """
 
-    box[2] += 1
-    box[3] += 1
-    box = [int(round(elem * INCEPTIONV3_SIZE)) for elem in box]
+    new_box = [int(round(elem * INCEPTIONV3_SIZE)) for elem in box]
+    
+    new_box[2] += INCEPTIONV3_SIZE
+    new_box[3] += INCEPTIONV3_SIZE
 
-    return box
+    return new_box
 
 
 ##############################
@@ -103,12 +104,12 @@ def show_box(image, box):
     show_image(image, show=False)
     
     # Overlay box.
-    box = expand_box(box)
-    if box[0] > box[2] or box[1] > box[3]:
+    new_box = expand_box(box)
+    if new_box[0] > new_box[2] or new_box[1] > new_box[3]:
         return
 
     # Add box.
-    rect = patches.Rectangle((box[0], box[3]), box[2] - box[0], box[3] - box[1], linewidth=1, edgecolor='r', facecolor='none')
+    rect = patches.Rectangle((new_box[0], new_box[1]), new_box[2] - new_box[0], new_box[3] - new_box[1], linewidth=1, edgecolor='r', facecolor='none')
     plt.gca().add_patch(rect)
 
     plt.show()
