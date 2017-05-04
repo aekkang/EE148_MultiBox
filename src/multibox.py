@@ -35,7 +35,7 @@ global1 = GlobalAveragePooling2D()(base_output)
 global1 = Reshape((1, 1, 2048))(global1)
 loc1 = Conv2D(4, kernel_size=(1, 1), activation='relu')(global1)
 conf1 = Conv2D(1, kernel_size=(1, 1), activation='relu')(global1)
-output1 = Concatenate(axis=3)(loc1, conf1)
+output1 = Concatenate(axis=3)([loc1, conf1])
 
 # Create the final model.
 model = Model(inputs=base_model.input, outputs=output1)
@@ -52,12 +52,14 @@ model = Model(inputs=base_model.input, outputs=output1)
 loc_train = Y_train.reshape(Y_train.shape[0], 1, 1, 4)
 conf_train = np.ones((Y_train.shape[0], 1, 1, 1))
 Y_train = np.concatenate((loc_train, conf_train), axis=3)
+Y_train = transform(Y_train)
 
 loc_test = Y_test.reshape(Y_test.shape[0], 1, 1, 4)
 conf_test = np.ones((Y_test.shape[0], 1, 1, 1))
 Y_test = np.concatenate((loc_test, conf_test), axis=3)
-print(Y_train)
-
+Y_test = transform(Y_test)
+print(Y_test)
+quit()
 
 ##############################
 # TRAINING
