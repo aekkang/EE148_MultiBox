@@ -64,7 +64,7 @@ model.compile(loss=[F_loc, F_conf], optimizer=OPTIMIZER, metrics=['accuracy'])
 
 # Fit the model; save the training history and the best model.
 if SAVE:
-    checkpointer = ModelCheckpoint(filepath=RESULTS_DIR + "weights.hdf5", verbose=VERBOSE, save_best_only=True)
+    checkpointer = ModelCheckpoint(filepath=RESULTS_DIR + "intermediate_model.hdf5", verbose=VERBOSE, save_best_only=True)
     hist = model.fit(X_train, Y_train, batch_size=BATCH_SIZE, epochs=EPOCHS, validation_data=(X_test, Y_test), verbose=VERBOSE, callbacks=[checkpointer])
 else:
     hist = model.fit(X_train, Y_train, batch_size=BATCH_SIZE, epochs=EPOCHS, validation_data=(X_test, Y_test), verbose=VERBOSE)
