@@ -48,7 +48,7 @@ def save_data():
         image, vpadding, hpadding, scale = resize_to_square(image)
         hpadding /= scale
         vpadding /= scale
-        side = max(w, h)
+        side = float(max(w, h))
 
         # Recalculate bonuding box.
         box = bounding_boxes[i]
@@ -90,12 +90,12 @@ def resize_to_square(image):
 
     # Determine new dimensions.
     h, w, n_channels = image.shape
-    scale = INCEPTIONV3_SIZE / max(w, h)
+    scale = INCEPTIONV3_SIZE / float(max(w, h))
     new_dim = (int(scale * w), int(scale * h))
     
     # Determine padding.
-    vpadding = (INCEPTIONV3_SIZE - new_dim[1]) / 2
-    hpadding = (INCEPTIONV3_SIZE - new_dim[0]) / 2
+    vpadding = (INCEPTIONV3_SIZE - new_dim[1]) / 2.
+    hpadding = (INCEPTIONV3_SIZE - new_dim[0]) / 2.
 
     # Resize and pad image.
     image = cv2.resize(image, new_dim, interpolation=cv2.INTER_AREA)
@@ -108,5 +108,5 @@ def resize_to_square(image):
 
 
 if __name__ == "__main__":
-    # save_data()
+    save_data()
     (X_train, Y_train), (X_test, Y_test) = load_data()
