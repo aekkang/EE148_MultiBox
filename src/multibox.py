@@ -53,7 +53,7 @@ base_output = base_model.output
 global1 = GlobalAveragePooling2D()(base_output)
 global1 = Reshape((1, 1, 2048))(global1)
 loc1 = Dense(4, activation='tanh')(global1)
-conf1 = Dense(1, activation='tanh')(global1)
+conf1 = Dense(1, activation='sigmoid')(global1)
 output1 = Concatenate(axis=3)([loc1, conf1])
 
 # Create the final model.

@@ -33,8 +33,8 @@ INCEPTIONV3_SIZE = 299
 
 # Model training parameters
 OPTIMIZER = "rmsprop"
-BATCH_SIZE = 32
-EPOCHS = 12
+BATCH_SIZE = 128
+EPOCHS = 8
 VERBOSE = 1
 SAVE = 1
 
@@ -43,7 +43,7 @@ SAVE = 1
 ##############################
 
 def F_loc(l, g):
-    return tf.squared_difference(l, g) / 2
+    return tf.reduce_sum(tf.squared_difference(l, g)) / 2
 
 def F_conf(c):
     return - tf.log(c)
@@ -70,9 +70,9 @@ def expand_box(box):
     Transform the given bounding box to 
     """
 
+    box[2] += 1
+    box[3] += 1
     box = [int(round(elem * INCEPTIONV3_SIZE)) for elem in box]
-    box[2] = 1 + box[2]
-    box[3] = 1 + box[3]
 
     return box
 
@@ -99,9 +99,12 @@ def show_box(image, box):
 
     show_image(image, show=False)
     
+    if box[0] > box[2] or box[1] > box[3]:
+        return
+
     # Overlay box.
     box = expand_box(box)
-    rect = patches.Rectangle((box[0], box[1]), box[2] - box[0], box[3] - box[1],
+    rect = patches.Rectangle((box[0], box[3]), box[2] - box[0], box[3] - box[1],
                              linewidth=1, edgecolor='r', facecolor='none')
     plt.gca().add_patch(rect)
 
