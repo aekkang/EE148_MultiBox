@@ -36,7 +36,7 @@ INCEPTIONV3_SIZE = 299
 # Model training parameters
 OPTIMIZER = "rmsprop"
 BATCH_SIZE = 32
-EPOCHS = 4
+EPOCHS = 10
 VERBOSE = 1
 SAVE = 1
 
@@ -62,10 +62,11 @@ SAVE = 1
 ##############################
 
 def F_loc(l, g):
+    return tf.squared_difference(y_true, y_pred) / 2
     return np.linalg.norm(l - g) ** 2 / 2
 
 def F_conf(c):
-    return - np.log(c)
+    return - tf.log(c)
 
 def F(l, g, c):
     return F_conf(c) + F_loc(l, g)

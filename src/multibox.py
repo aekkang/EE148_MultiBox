@@ -60,7 +60,7 @@ for layer in base_model.layers:
 
 # Print summary and compile.
 model.summary()
-model.compile(loss=loss, optimizer=OPTIMIZER, metrics=['accuracy'])
+model.compile(loss=[F_loc, F_conf], optimizer=OPTIMIZER, metrics=['accuracy'])
 
 # Fit the model; save the training history and the best model.
 if SAVE:
