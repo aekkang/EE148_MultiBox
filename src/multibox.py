@@ -12,7 +12,7 @@ import numpy as np
 
 from keras.applications.inception_v3 import InceptionV3
 from keras.models import Model
-from keras.layers import GlobalAveragePooling2D
+from keras.layers import Dense, GlobalAveragePooling2D
 from keras.layers.convolutional import Conv2D
 from keras.layers.merge import Concatenate
 from keras.layers.core import Reshape
@@ -20,25 +20,6 @@ from keras.callbacks import ModelCheckpoint
 
 from data_preprocessing import *
 from utility import *
-
-
-##############################
-# MODEL ARCHITECTURE
-##############################
-
-# Load the pre-trained InceptionV3.
-base_model = InceptionV3(weights='imagenet', include_top=False)
-base_output = base_model.output
-
-# Add new layers in place of the last layer in the original model.
-global1 = GlobalAveragePooling2D()(base_output)
-global1 = Reshape((1, 1, 2048))(global1)
-loc1 = Conv2D(4, kernel_size=(1, 1), activation='relu')(global1)
-conf1 = Conv2D(1, kernel_size=(1, 1), activation='relu')(global1)
-output1 = Concatenate(axis=3)([loc1, conf1])
-
-# Create the final model.
-model = Model(inputs=base_model.input, outputs=output1)
 
 
 ##############################
@@ -58,8 +39,26 @@ loc_test = Y_test.reshape(Y_test.shape[0], 1, 1, 4)
 conf_test = np.ones((Y_test.shape[0], 1, 1, 1))
 Y_test = np.concatenate((loc_test, conf_test), axis=3)
 Y_test = transform(Y_test)
-print(Y_test)
-quit()
+
+
+##############################
+# MODEL ARCHITECTURE
+##############################
+
+# Load the pre-trained InceptionV3.
+base_model = InceptionV3(weights='imagenet', include_top=False)
+base_output = base_model.output
+
+# Add new layers in place of the last layer in the original model.
+global1 = GlobalAveragePooling2D()(base_output)
+global1 = Reshape((1, 1, 2048))(global1)
+loc1 = Dense(4, activation='relu')(global1)
+conf1 = Dense(1, activation='relu')(global1)
+output1 = Concatenate(axis=3)([loc1, conf1])
+
+# Create the final model.
+model = Model(inputs=base_model.input, outputs=output1)
+
 
 ##############################
 # TRAINING
