@@ -57,7 +57,12 @@ def F(y_true, y_pred):
 ##############################
 
 def transform(Y):
+    """
+    Transforms the dataset with respect to priors.
+    """
+
     Y[:, :, :, 2:4] -= 1
+    
     return Y
 
 def expand_box(box):
