@@ -52,8 +52,8 @@ base_output = base_model.output
 # Add new layers in place of the last layer in the original model.
 global1 = GlobalAveragePooling2D()(base_output)
 global1 = Reshape((1, 1, 2048))(global1)
-loc1 = Dense(4, activation='sigmoid')(global1)
-conf1 = Dense(1, activation='sigmoid')(global1)
+loc1 = Dense(4, activation='tanh')(global1)
+conf1 = Dense(1, activation='tanh')(global1)
 output1 = Concatenate(axis=3)([loc1, conf1])
 
 # Create the final model.
