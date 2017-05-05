@@ -79,13 +79,13 @@ def export_data(boxes_train, boxes_test):
     
     # Crop and save.
     X_train = [resize_to_square(crop_box(x, expand_box(boxes_train[i, :4], clip=True)))[0]
-               if boxes_train[i, 0] < boxes_train[i, 2]
-                  and boxes_train[i, 1] < boxes_train[i, 3]
+               if boxes_train[i, 0] + 5 / 299. < boxes_train[i, 2]
+                  and boxes_train[i, 1] + 5 / 299. < boxes_train[i, 3]
                else x
                for i, x in enumerate(X_train)]
     X_test = [resize_to_square(crop_box(x, expand_box(boxes_test[i, :4], clip=True)))[0]
-               if boxes_test[i, 0] < boxes_test[i, 2]
-                  and boxes_test[i, 1] < boxes_test[i, 3]
+               if boxes_test[i, 0] + 5 / 299. < boxes_test[i, 2]
+                  and boxes_test[i, 1] + 5 / 299. < boxes_test[i, 3]
                else x
                for i, x in enumerate(X_test)]
 
