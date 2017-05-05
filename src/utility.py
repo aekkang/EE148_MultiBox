@@ -33,6 +33,7 @@ PREPROCESSED_DIR = DATA_DIR + "preprocessed/"
 
 # Model parameters
 INCEPTIONV3_SIZE = 299
+N_CLASSES = 200
 
 # Model training parameters
 OPTIMIZER = "rmsprop"
@@ -91,12 +92,15 @@ def untransform(Y):
 
     Y[:, :, :, 2:4] += 1
 
-def expand_box(box):
+def expand_box(box, clip=False):
     """
     Transform the given bounding box to one with feasible coordinates.
     """
 
     new_box = [int(round(elem * INCEPTIONV3_SIZE)) for elem in box]
+
+    if clip:
+        new_box = [max(new_box[0], 0), max(new_box[1], 0), min(new_box[2], 298), min(new_box[3], 298)]
 
     return new_box
 
@@ -110,13 +114,13 @@ def show_image(image, show=True):
     Show given image.
     """
 
-    # plt.xticks([]), plt.yticks([])
+    plt.xticks([]), plt.yticks([])
     plt.imshow(image) #, cmap=plt.get_cmap('gray'))
 
     if show:
         plt.show()
 
-def show_box(image, box):
+def show_box(image, box, show=True):
     """
     Show given image with the given overlaying bounding box.
     """
@@ -132,7 +136,8 @@ def show_box(image, box):
     rect = patches.Rectangle((box[0], box[1]), box[2] - box[0], box[3] - box[1], linewidth=1, edgecolor='r', facecolor='none')
     plt.gca().add_patch(rect)
 
-    plt.show()
+    if show:
+        plt.show()
 
 
 ##############################

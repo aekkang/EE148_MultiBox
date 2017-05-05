@@ -1,6 +1,6 @@
 data/
 results/
+images/
+
 src/__pycache__/
-
 src/*.pyc
-
