@@ -145,8 +145,8 @@ def resize_to_square(image):
     # Resize and pad image.
     image = cv2.resize(image, new_dim, interpolation=cv2.INTER_AREA)
     image = cv2.copyMakeBorder(image,
-                               math.floor(vpadding), math.ceil(vpadding),
-                               math.floor(hpadding), math.ceil(hpadding),
+                               int(math.floor(vpadding)), int(math.ceil(vpadding)),
+                               int(math.floor(hpadding)), int(math.ceil(hpadding)),
                                cv2.BORDER_CONSTANT, value=(0, 0, 0))
 
     return image, vpadding, hpadding, scale
