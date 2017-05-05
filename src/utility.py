@@ -14,6 +14,8 @@ from sklearn.metrics import confusion_matrix
 from keras.models import load_model
 from keras.utils.generic_utils import get_custom_objects
 
+from utility import *
+
 # Suppress compiler warnings.
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
@@ -41,18 +43,34 @@ EPOCHS = 32
 VERBOSE = 1
 SAVE = 1
 
+# Visualization parameters
+IOU_THRESHES = (0.5, 0.7, 0.9)
+THRESH_INC = 0.005
+
+
 ##############################
 # LOSS FUNCTIONS - 1x1
 ##############################
 
 def F_loc(l, g):
+    """
+    The location loss function.
+    """
+
     return tf.reduce_sum(tf.squared_difference(l, g)) / 2
 
 def F_conf(c):
+    """
+    The confidence loss function.
+    """
+
     return - tf.log(c)
 
-def F(y_true, y_pred):
-    return F_conf(y_pred[:, :, :, 4]) + F_loc(y_true[:, :, :, :4], y_pred[:, :, :, :4])
+def F(Y_true, Y_pred):
+    """
+    The total loss function.
+    """
+    return F_conf(Y_pred[:, :, :, 4]) + F_loc(Y_true[:, :, :, :4], Y_pred[:, :, :, :4])
 
 
 ##############################
@@ -61,12 +79,19 @@ def F(y_true, y_pred):
 
 def transform(Y):
     """
-    Transforms the dataset with respect to priors.
+    Transforms the dataset with respect to priors. Data used to train the
+    CNN should be transformed.
     """
 
     Y[:, :, :, 2:4] -= 1
-    
-    return Y
+
+def untransform(Y):
+    """
+    Undoes transform of the dataset with respect to priors. Data used for
+    visualization should not be transformed.
+    """
+
+    Y[:, :, :, 2:4] += 1
 
 def expand_box(box):
     """
@@ -74,9 +99,6 @@ def expand_box(box):
     """
 
     new_box = [int(round(elem * INCEPTIONV3_SIZE)) for elem in box]
-    
-    new_box[2] += INCEPTIONV3_SIZE
-    new_box[3] += INCEPTIONV3_SIZE
 
     return new_box
 
@@ -104,12 +126,12 @@ def show_box(image, box):
     show_image(image, show=False)
     
     # Overlay box.
-    new_box = expand_box(box)
-    if new_box[0] > new_box[2] or new_box[1] > new_box[3]:
+    box = expand_box(box)
+    if box[0] > box[2] or box[1] > box[3]:
         return
 
     # Add box.
-    rect = patches.Rectangle((new_box[0], new_box[1]), new_box[2] - new_box[0], new_box[3] - new_box[1], linewidth=1, edgecolor='r', facecolor='none')
+    rect = patches.Rectangle((box[0], box[1]), box[2] - box[0], box[3] - box[1], linewidth=1, edgecolor='r', facecolor='none')
     plt.gca().add_patch(rect)
 
     plt.show()
@@ -135,6 +157,79 @@ def visualize_cmatrix(model, X_test, Y_test, filename):
     # Save figure.
     # plt.savefig(VISUALIZATION_DIR + filename)
     return cmatrix
+
+def does_box_contain_point(box, point):
+    """
+    Determines whether a box contains a point.
+    """
+
+    p1x, p1y, p2x, p2y = box
+    x, y = point
+
+    return (p1x <= x <= p2x) and (p1y <= y <= p2y)
+
+def do_boxes_intersect(box1, box2):
+    """
+    Determines whether two boxes intersect.
+    """
+
+    b1p1, b1p2 = box1[:2], box1[2:]
+    b2p1, b2p2 = box2[:2], box2[2:]
+
+    return does_box_contain_point(box2, b1p1) \
+    or does_box_contain_point(box2, b1p2) \
+    or does_box_contain_point(box2, (b1p1[0], b1p2[1])) \
+    or does_box_contain_point(box2, (b1p2[0], b1p1[1])) \
+    or does_box_contain_point(box1, b2p1) \
+    or does_box_contain_point(box1, b2p2) \
+    or does_box_contain_point(box1, (b2p1[0], b2p2[1])) \
+    or does_box_contain_point(box1, (b2p2[0], b2p1[1]))
+
+def get_area_of_box(box):
+    """
+    Determines the area of a box.
+    """
+
+    p1x, p1y, p2x, p2y = box
+
+    return (p2x - p1x) * (p2y - p1y)
+
+def get_intersection_of_boxes(box1, box2):
+    """
+    Determines the intersection area of two boxes.
+    """
+
+    if not do_boxes_intersect(box1, box2):
+        return 0
+    else:
+        b1p1x, b1p1y, b1p2x, b1p2y = box1
+        b2p1x, b2p1y, b2p2x, b2p2y = box2
+
+        X = sorted([b1p1x, b1p2x, b2p1x, b2p2x])
+        Y = sorted([b1p1y, b1p2y, b2p1y, b2p2y])
+
+        return (X[2] - X[1]) * (Y[2] - Y[1])
+
+
+def get_union_of_boxes(box1, box2):
+    """
+    Determines the union area of two boxes.
+    """
+
+    area1 = get_area_of_box(box1)
+    area2 = get_area_of_box(box2)
+    intersection = get_intersection_of_boxes(box1, box2)
+
+    return area1 + area2 - intersection
+
+def get_iou_of_boxes(box1, box2):
+    """
+    Determines the IOU of two boxes.
+    """
+
+    intersection = get_intersection_of_boxes(box1, box2)
+    union = get_union_of_boxes(box1, box2)
+    return float(intersection) / union
 
 
 ##############################
