@@ -14,8 +14,6 @@ from sklearn.metrics import confusion_matrix
 from keras.models import load_model
 from keras.utils.generic_utils import get_custom_objects
 
-from utility import *
-
 # Suppress compiler warnings.
 import os
 os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
